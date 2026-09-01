@@ -1,0 +1,7 @@
+# Editor automático de videos — dependencias
+anthropic>=0.69        # guion con Claude
+requests>=2.31         # ElevenLabs
+fastapi>=0.115         # interfaz web
+uvicorn>=0.30          # servidor de la interfaz
+python-multipart>=0.0.9  # subida de archivos
+python-dotenv>=1.0     # lee el .env

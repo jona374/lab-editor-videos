@@ -5,6 +5,27 @@
 El repo de producción es [`editor-de-videos`](https://github.com/jona374/editor-de-videos).
 Aquí se prueban cosas antes de llevarlas allá.
 
+## La app: editor automático de videos
+
+Primer boceto funcionando. Subes clips, dices de qué va el video y sale un video
+vertical con voz en off (ElevenLabs), cortes cada 2 segundos, subtítulos quemados
+y música que se agacha cuando habla la voz.
+
+```bash
+./instalar.sh
+.venv/bin/python -m editor servidor      # http://127.0.0.1:8000
+```
+
+El manual completo está en **[COMO-USAR.md](COMO-USAR.md)**.
+
+| Carpeta | Qué hay |
+|---|---|
+| `editor/` | el código: guion, voz, corte, subtítulos, música, render, CLI y servidor |
+| `web/` | la interfaz para subir clips y ver el resultado |
+| `assets/musica/` | las pistas de fondo, por ambiente |
+| `salidas/` | lo que se va generando (video, guion, srt, plan del corte) |
+| `tests/` | pruebas, incluidas dos que renderizan un video de verdad |
+
 ## Qué se está probando ahora
 
 Las **agent-skills** de Addy Osmani (copia en

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor automático de videos</title>
+<style>
+  :root {
+    --fondo: #0e1013; --panel: #171a20; --borde: #262b34; --texto: #e8eaed;
+    --suave: #9aa3af; --acento: #4f8cff; --ok: #35c07f; --error: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 24px 20px 8px; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  header p { color: var(--suave); margin: 0; }
+  main { max-width: 900px; margin: 0 auto; padding: 12px 20px 60px; }
+  section { background: var(--panel); border: 1px solid var(--borde); border-radius: 12px;
+            padding: 18px; margin-bottom: 14px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em;
+       color: var(--suave); margin: 0 0 12px; }
+  label { display: block; font-size: 13px; color: var(--suave); margin: 10px 0 4px; }
+  input, select, textarea, button {
+    font: inherit; color: var(--texto); background: #0f1216; border: 1px solid var(--borde);
+    border-radius: 8px; padding: 9px 11px; width: 100%; }
+  textarea { min-height: 96px; resize: vertical; }
+  button { background: var(--acento); border-color: var(--acento); color: #fff; cursor: pointer;
+           font-weight: 600; }
+  button.secundario { background: transparent; border-color: var(--borde); color: var(--texto);
+                      font-weight: 500; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  .fila { display: flex; gap: 10px; flex-wrap: wrap; }
+  .fila > * { flex: 1 1 160px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { background: #0f1216; border: 1px solid var(--borde); border-radius: 999px;
+          padding: 3px 10px; font-size: 12px; color: var(--suave); }
+  .casilla { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--texto); }
+  .casilla input { width: auto; }
+  #zona { border: 1px dashed var(--borde); border-radius: 10px; padding: 22px; text-align: center;
+          color: var(--suave); cursor: pointer; }
+  #zona.encima { border-color: var(--acento); color: var(--texto); }
+  #consola { background: #0b0d10; border: 1px solid var(--borde); border-radius: 8px; padding: 12px;
+             font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+             white-space: pre-wrap; max-height: 280px; overflow: auto; }
+  .aviso { font-size: 13px; color: var(--suave); margin-top: 10px; }
+  .error { color: var(--error); }
+  .ok { color: var(--ok); }
+  video { width: 100%; max-width: 320px; border-radius: 10px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Editor automático de videos</h1>
+  <p>Sube clips, pide el tema y sale el video con voz, cortes, subtítulos y música.</p>
+</header>
+
+<main>
+  <section>
+    <h2>1 · Marca</h2>
+    <div class="fila">
+      <select id="marca"></select>
+      <button class="secundario" id="btn-marca">Crear marca nueva</button>
+    </div>
+    <div class="chips" id="chips-marca"></div>
+  </section>
+
+  <section>
+    <h2>2 · Clips</h2>
+    <div id="zona">Arrastra tus videos aquí o haz clic para elegirlos</div>
+    <input id="archivos" type="file" accept="video/*" multiple hidden>
+    <div class="casilla">
+      <input type="checkbox" id="apoyo">
+      <label for="apoyo" style="margin:0">Subirlos como tomas de apoyo (b-roll)</label>
+    </div>
+    <div class="aviso" id="aviso-subida"></div>
+  </section>
+
+  <section>
+    <h2>3 · Guion</h2>
+    <label for="tema">Tema (lo escribe Claude)</label>
+    <input id="tema" placeholder="Ej.: por qué el pantalón cargo aguanta el trabajo pesado">
+    <label for="guion">O pega aquí tu guion (si lo llenas, manda este)</label>
+    <textarea id="guion" placeholder="Una frase por idea. La primera es el gancho, la última el CTA."></textarea>
+  </section>
+
+  <section>
+    <h2>4 · Edición</h2>
+    <div class="fila">
+      <div>
+        <label for="duracion">Duración</label>
+        <select id="duracion">
+          <option value="46">46 segundos</option>
+          <option value="60">60 segundos</option>
+          <option value="30">30 segundos</option>
+          <option value="90">90 segundos</option>
+        </select>
+      </div>
+      <div>
+        <label for="corte">Corte cada</label>
+        <select id="corte">
+          <option value="2">2 segundos</option>
+          <option value="1.5">1.5 segundos</option>
+          <option value="3">3 segundos</option>
+        </select>
+      </div>
+      <div>
+        <label for="formato">Formato</label>
+        <select id="formato"></select>
+      </div>
+      <div>
+        <label for="musica">Música</label>
+        <select id="musica"><option value="">La que pegue con el guion</option></select>
+      </div>
+    </div>
+    <div class="casilla">
+      <input type="checkbox" id="subtitulos" checked>
+      <label for="subtitulos" style="margin:0">Subtítulos quemados</label>
+    </div>
+    <div class="casilla">
+      <input type="checkbox" id="sin-voz">
+      <label for="sin-voz" style="margin:0">Sin voz en off (borrador mudo, sin gastar ElevenLabs)</label>
+    </div>
+    <div class="aviso" id="aviso-claves"></div>
+  </section>
+
+  <section>
+    <button id="generar">Generar video</button>
+    <div class="aviso" id="estado"></div>
+    <div id="consola" hidden></div>
+    <div id="resultado"></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let estadoApp = { marcas: [] };
+
+async function cargarEstado() {
+  const datos = await (await fetch("/api/estado")).json();
+  estadoApp = datos;
+  const marcaActual = $("marca").value;
+  $("marca").innerHTML = datos.marcas.map(m => `<option>${m.nombre}</option>`).join("")
+    || `<option value="">(sin marcas)</option>`;
+  if (marcaActual) $("marca").value = marcaActual;
+  $("formato").innerHTML = datos.formatos.map(f => `<option>${f}</option>`).join("");
+  $("musica").innerHTML = `<option value="">La que pegue con el guion</option>`
+    + datos.musica.map(p => `<option value="${p}">${p}</option>`).join("");
+  const faltan = [];
+  if (!datos.claves.anthropic) faltan.push("ANTHROPIC_API_KEY (para escribir el guion)");
+  if (!datos.claves.elevenlabs) faltan.push("ELEVENLABS_API_KEY (para la voz)");
+  $("aviso-claves").innerHTML = faltan.length
+    ? `<span class="error">Falta en el .env: ${faltan.join(" · ")}</span>`
+    : `<span class="ok">Claves de Claude y ElevenLabs detectadas</span>`;
+  pintarChips();
+}
+
+function pintarChips() {
+  const marca = estadoApp.marcas.find(m => m.nombre === $("marca").value);
+  $("chips-marca").innerHTML = marca
+    ? [`${marca.clips.length} clip(s)`, `${marca.apoyos.length} toma(s) de apoyo`]
+        .map(t => `<span class="chip">${t}</span>`).join("")
+    : "";
+}
+
+$("marca").onchange = pintarChips;
+
+$("btn-marca").onclick = async () => {
+  const nombre = prompt("Nombre de la marca (será el nombre de la carpeta):");
+  if (!nombre) return;
+  await fetch(`/api/marcas/${encodeURIComponent(nombre)}`, { method: "POST" });
+  await cargarEstado();
+  $("marca").value = nombre;
+  pintarChips();
+};
+
+$("zona").onclick = () => $("archivos").click();
+["dragover", "dragleave", "drop"].forEach(evento =>
+  $("zona").addEventListener(evento, (e) => {
+    e.preventDefault();
+    $("zona").classList.toggle("encima", evento === "dragover");
+    if (evento === "drop") subir(e.dataTransfer.files);
+  }));
+$("archivos").onchange = (e) => subir(e.target.files);
+
+async function subir(archivos) {
+  if (!archivos.length) return;
+  const marca = $("marca").value;
+  if (!marca) return alert("Crea una marca primero");
+  const cuerpo = new FormData();
+  for (const archivo of archivos) cuerpo.append("archivos", archivo);
+  $("aviso-subida").textContent = `Subiendo ${archivos.length} archivo(s)…`;
+  const url = `/api/marcas/${encodeURIComponent(marca)}/clips?apoyo=${$("apoyo").checked}`;
+  const respuesta = await fetch(url, { method: "POST", body: cuerpo });
+  const datos = await respuesta.json();
+  $("aviso-subida").innerHTML = respuesta.ok
+    ? `<span class="ok">Subidos: ${datos.guardados.join(", ")}</span>`
+    : `<span class="error">${datos.detail || "no se pudieron subir"}</span>`;
+  await cargarEstado();
+}
+
+$("generar").onclick = async () => {
+  const peticion = {
+    marca: $("marca").value,
+    tema: $("tema").value.trim() || null,
+    guion: $("guion").value.trim() || null,
+    duracion: parseFloat($("duracion").value),
+    corte: parseFloat($("corte").value),
+    formato: $("formato").value,
+    musica: $("musica").value || null,
+    subtitulos: $("subtitulos").checked,
+    sin_voz: $("sin-voz").checked,
+  };
+  if (!peticion.marca) return alert("Elige una marca");
+  if (!peticion.tema && !peticion.guion) return alert("Escribe un tema o pega un guion");
+
+  $("generar").disabled = true;
+  $("resultado").innerHTML = "";
+  $("consola").hidden = false;
+  $("consola").textContent = "";
+  $("estado").textContent = "Trabajando…";
+
+  const respuesta = await fetch("/api/videos", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(peticion),
+  });
+  const datos = await respuesta.json();
+  if (!respuesta.ok) {
+    $("estado").innerHTML = `<span class="error">${datos.detail}</span>`;
+    $("generar").disabled = false;
+    return;
+  }
+  seguir(datos.id);
+};
+
+async function seguir(id) {
+  const trabajo = await (await fetch(`/api/trabajos/${id}`)).json();
+  $("consola").textContent = trabajo.mensajes.join("\n");
+  $("consola").scrollTop = $("consola").scrollHeight;
+
+  if (trabajo.estado === "listo") {
+    $("estado").innerHTML = `<span class="ok">Listo</span>`;
+    const url = `/api/video?ruta=${encodeURIComponent(trabajo.video)}`;
+    $("resultado").innerHTML =
+      `<video controls src="${url}"></video><div class="aviso">${trabajo.carpeta}</div>`;
+    $("generar").disabled = false;
+    cargarEstado();
+    return;
+  }
+  if (trabajo.estado === "error") {
+    $("estado").innerHTML = `<span class="error">${trabajo.error}</span>`;
+    $("generar").disabled = false;
+    return;
+  }
+  setTimeout(() => seguir(id), 1200);
+}
+
+cargarEstado();
+</script>
+</body>
+</html>
