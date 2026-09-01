@@ -3,7 +3,20 @@
 Subes clips crudos, dices de qué va el video, y la app devuelve un video vertical
 con voz en off, cortes cada 2 segundos, subtítulos quemados y música de fondo.
 
-## 1. Instalar (una sola vez)
+## Opción rápida: sin instalar nada (Google Colab)
+
+Si tu computadora es vieja o no puedes instalar programas, corre todo en el navegador,
+gratis, en los servidores de Google:
+
+**[▶ Abrir el editor en Colab](https://colab.research.google.com/github/jona374/lab-editor-videos/blob/claude/auto-video-editing-app-rft92m/colab/editor_en_colab.ipynb)**
+
+Subes los clips con un botón, llenas el tema y descargas el video. Necesitas una cuenta
+de Google y nada más. El cuaderno está en `colab/editor_en_colab.ipynb`.
+
+Ojo: Colab se apaga solo tras un rato sin usarlo y borra los archivos subidos; para
+trabajo diario conviene instalarlo en una computadora (abajo).
+
+## 1. Instalar en tu computadora (una sola vez)
 
 ```bash
 ./instalar.sh          # crea el entorno, instala todo y revisa que exista ffmpeg

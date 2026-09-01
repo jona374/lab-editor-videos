@@ -16,6 +16,9 @@ y música que se agacha cuando habla la voz.
 .venv/bin/python -m editor servidor      # http://127.0.0.1:8000
 ```
 
+¿PC vieja o sin permiso para instalar? Corre igual desde el navegador:
+**[▶ abrir en Google Colab](https://colab.research.google.com/github/jona374/lab-editor-videos/blob/claude/auto-video-editing-app-rft92m/colab/editor_en_colab.ipynb)**
+
 El manual completo está en **[COMO-USAR.md](COMO-USAR.md)**.
 
 | Carpeta | Qué hay |
