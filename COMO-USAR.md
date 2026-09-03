@@ -10,8 +10,9 @@ gratis, en los servidores de Google:
 
 **[▶ Abrir el editor en Colab](https://colab.research.google.com/github/jona374/lab-editor-videos/blob/claude/auto-video-editing-app-rft92m/colab/editor_en_colab.ipynb)**
 
-Subes los clips con un botón, llenas el tema y descargas el video. Necesitas una cuenta
-de Google y nada más. El cuaderno está en `colab/editor_en_colab.ipynb`.
+Si tus clips ya están en Google Drive, el cuaderno los toma de ahí sin volver a subirlos:
+solo escribes el nombre de la carpeta. También lista las voces de tu cuenta de ElevenLabs
+para que copies el ID de la que quieras. El cuaderno está en `colab/editor_en_colab.ipynb`.
 
 Ojo: Colab se apaga solo tras un rato sin usarlo y borra los archivos subidos; para
 trabajo diario conviene instalarlo en una computadora (abajo).
